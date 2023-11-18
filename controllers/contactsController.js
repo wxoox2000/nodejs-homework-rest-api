@@ -1,9 +1,10 @@
-const contactService = require("../models/contacts");
 const helpers = require("../helpers/index");
 const schemas = require("../schemas/schemas");
+const Contact = require("../models/Contact");
+
 const getAllContacts = async (req, res, next) => {
   try {
-    const result = await contactService.listContacts();
+    const result = await Contact.find();
     res.json(result);
   } catch (error) {
     next(error);
@@ -13,7 +14,7 @@ const getAllContacts = async (req, res, next) => {
 const getById = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const result = await contactService.getContactById(contactId);
+    const result = await Contact.findById(contactId);
     if (!result) {
       throw helpers.HttpError(404, `Not found`);
     }
@@ -28,7 +29,7 @@ const add = async (req, res, next) => {
     if (error) {
       throw helpers.HttpError(400, error.message);
     }
-    const result = await contactService.addContact(req.body);
+    const result = await Contact.create(req.body);
     res.status(201).json(result);
   } catch (error) {
     next(error);
@@ -38,7 +39,7 @@ const add = async (req, res, next) => {
 const deleteContact = async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const result = await contactService.removeContact(contactId);
+    const result = await Contact.findByIdAndDelete(contactId);
     if (!result) {
       throw helpers.HttpError(404, `Not found`);
     }
@@ -54,7 +55,23 @@ const updateContact = async (req, res, next) => {
       throw helpers.HttpError(400, error.message);
     }
     const { contactId } = req.params;
-    const result = await contactService.updateContact(contactId, req.body);
+    const result = await Contact.findByIdAndUpdate(contactId, req.body);
+    if (!result) {
+      throw helpers.HttpError(404, `Not found`);
+    }
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+const switchFavoriteContact = async (req, res, next) => {
+  try {
+    const { error } = schemas.favoriteContactSchema.validate(req.body);
+    if (error) {
+      throw helpers.HttpError(400, error.message);
+    }
+    const { contactId } = req.params;
+    const result = await Contact.findByIdAndUpdate(contactId, req.body);
     if (!result) {
       throw helpers.HttpError(404, `Not found`);
     }
@@ -70,4 +87,5 @@ module.exports = {
   add,
   deleteContact,
   updateContact,
+  switchFavoriteContact
 };

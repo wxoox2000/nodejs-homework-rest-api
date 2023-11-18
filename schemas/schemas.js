@@ -19,9 +19,16 @@ const updateContactSchema = Joi.object({
     name: Joi.string(),
     email: Joi.string(),
     phone: Joi.string(),
+});
+
+const favoriteContactSchema = Joi.object({
+  favorite: Joi.boolean().required().messages({
+    "any.required": "missing field favorite",
+  })
 })
 
 module.exports = {
     addContactSchema,
     updateContactSchema,
+    favoriteContactSchema
 }
