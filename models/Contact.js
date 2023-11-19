@@ -16,7 +16,7 @@ const contactSchema = Schema({
     type: Boolean,
     default: false,
   },
-});
+}, {versionKey: false, timestamps: true});
 contactSchema.pre("findOneAndUpdate", function(next) {
     this.options.new = true;
     this.options.runValidators = true;

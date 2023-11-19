@@ -14,6 +14,6 @@ router.delete('/:contactId', middlewares.isValidId, contactsController.deleteCon
 
 router.put('/:contactId', middlewares.isValidId, middlewares.isEmptyBody, contactsController.updateContact);
 
-router.patch("/:contactId/favorite", middlewares.isValidId, middlewares.isEmptyBody, contactsController.switchFavoriteContact);
+router.patch("/:contactId/favorite", middlewares.isValidId, middlewares.isEmptyFavorite, contactsController.switchFavoriteContact);
 
 module.exports = router
