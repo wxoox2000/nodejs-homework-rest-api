@@ -1,3 +1,5 @@
+const HttpError = require("../helpers/HttpError");
+
 const isEmptyFavorite = (req, res, next) => {
     const keys = Object.keys(req.body);
     if(!keys.length) {
