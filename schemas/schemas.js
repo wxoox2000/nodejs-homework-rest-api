@@ -27,8 +27,38 @@ const favoriteContactSchema = Joi.object({
   })
 })
 
+// password: {
+//   type: String,
+//   required: [true, "Set password for user"],
+// },
+// email: {
+//   type: String,
+//   required: [true, "Email is required"],
+//   unique: true,
+// },
+// subscription: {
+//   type: String,
+//   enum: ["starter", "pro", "business"],
+//   default: "starter",
+// },
+// token: String,
+
+
+const userSignupSchema = Joi.object({
+  password: Joi.string().required(),
+  email: Joi.string().required(),
+  subscription: Joi.string().valid("starter", "pro", "business"),
+  // token: Joi.string(),
+});
+const userSigninSchema = Joi.object({
+  password: Joi.string().required(),
+  email: Joi.string().required(),
+});
+
 module.exports = {
     addContactSchema,
     updateContactSchema,
-    favoriteContactSchema
+    favoriteContactSchema,
+    userSignupSchema,
+    userSigninSchema
 }

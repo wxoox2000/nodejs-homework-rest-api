@@ -4,6 +4,8 @@ const router = express.Router();
 const contactsController = require("../../controllers/contactsController");
 const middlewares = require("../../middlewares/index");
 
+router.use(middlewares.authenticate);
+
 router.get('/', contactsController.getAllContacts);
 
 router.get('/:contactId', middlewares.isValidId, contactsController.getById);
