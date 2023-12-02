@@ -12,6 +12,7 @@ const { error } = require("console");
 dotenv.config();
 
 const avatarPath = path.resolve("public", "avatars");
+const tmpPath = path.resolve("tmp");
 const signup = async (req, res, next) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -73,17 +74,19 @@ const signout = async (req, res, next) => {
 
 const avatar = async (req, res, next) => {
   const { _id } = req.user;
+  if(!req.file) {
+    return next(HttpError(400, "Provide file to upload"))
+  }
   const { path: oldPath, filename } = req.file;
-  Jimp.read(oldPath, (err, img) => {
-    if (err) {
-      console.log(err);
-    }
-    img.resize(250, 250);
+  const splitFilename = filename.split(".");
+  const resizedFile = `${splitFilename[0]}_250x250.${splitFilename[1]}`;
+  const newPath = path.join(avatarPath, resizedFile);
+  Jimp.read(oldPath).then((img) => {
+    img.resize(250, 250)
+    img.write(newPath);
   });
-  const newPath = path.join(avatarPath, filename);
   await fs.rename(oldPath, newPath);
-  const newURL = `http://localhost:3000/avatars/${filename}`;
-  console.log(newURL);
+  const newURL = path.join("public", "avatars", resizedFile);
   await User.findByIdAndUpdate(_id, { avatarURL: newURL });
   res.status(200).json({
     "avatarURL": newURL
