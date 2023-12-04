@@ -86,7 +86,7 @@ const avatar = async (req, res, next) => {
     img.write(newPath);
   });
   await fs.rename(oldPath, newPath);
-  const newURL = path.join("public", "avatars", resizedFile);
+  const newURL = path.join("avatars", resizedFile);
   await User.findByIdAndUpdate(_id, { avatarURL: newURL });
   res.status(200).json({
     "avatarURL": newURL
