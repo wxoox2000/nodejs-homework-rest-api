@@ -9,6 +9,8 @@ const fs = require("fs/promises");
 const path = require("path");
 const Jimp = require("jimp");
 const { error } = require("console");
+const { nanoid } = require("nanoid");
+const middlewares = require("../middlewares/index");
 dotenv.config();
 
 const avatarPath = path.resolve("public", "avatars");
@@ -21,11 +23,14 @@ const signup = async (req, res, next) => {
   }
   const hashPassword = await bcrypt.hash(password, 10);
   const avatarURL = `${gravatar.url(email)}?d=identicon`;
+  const verificationToken =  nanoid();
   const newUser = await User.create({
     ...req.body,
     password: hashPassword,
     avatarURL,
+    verificationToken,
   });
+  middlewares.sendMail(email, verificationToken)
   res.status(201).json({
     user: {
       email: newUser.email,
@@ -38,6 +43,9 @@ const signin = async (req, res, next) => {
   const user = await User.findOne({ email });
   if (!user) {
     return next(HttpError(401, "Email or password is wrong"));
+  }
+  if(!user.verify) {
+    return next(HttpError(401, "Email is not verified"));
   }
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
@@ -94,10 +102,40 @@ const avatar = async (req, res, next) => {
 
 };
 
+const verification = async (req, res, next) => {
+  const {verificationToken} = req.params;
+  const user = await User.findOne({ verificationToken });
+  if(!user) {
+    return next(HttpError(404, 'User not found'));
+  }
+  await User.updateOne({verificationToken}, { verificationToken: null, verify: true });
+  res.status(200).json({
+    "message": 'Verification successful'
+  })
+}
+const reVerification = async (req, res, next) => {
+  const {email} = req.body;
+  if(!email) {
+    return next(HttpError(400, "missing required field email"))
+  }
+  const user = await User.findOne({ email });
+  if(user.verify) {
+    return next(HttpError(400, "Verification has already been passed"))
+  }
+  const verificationToken =  nanoid();
+  await User.updateOne({email}, { verificationToken});
+  middlewares.sendMail(email, verificationToken);
+  res.status(200).json({
+    "message": "Verification email sent"
+  })
+}
+
 module.exports = {
   signup,
   signin,
   getCurrent,
   signout,
   avatar,
+  verification,
+  reVerification
 };

@@ -10,5 +10,7 @@ router.post("/register", validateBody(schemas.userSignupSchema), authController.
 router.post("/login", validateBody(schemas.userSigninSchema), authController.signin);
 router.get("/current", middlewares.authenticate, authController.getCurrent);
 router.post("/logout", middlewares.authenticate, authController.signout);
-router.patch("/avatars", middlewares.upload.single("avatar"), middlewares.authenticate, authController.avatar)
+router.patch("/avatars", middlewares.upload.single("avatar"), middlewares.authenticate, authController.avatar);
+router.get("/verify/:verificationToken", authController.verification);
+router.post("/verify", validateBody(schemas.verifySchema), authController.reVerification);
 module.exports = router

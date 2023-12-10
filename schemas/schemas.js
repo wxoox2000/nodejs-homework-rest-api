@@ -27,6 +27,12 @@ const favoriteContactSchema = Joi.object({
   })
 })
 
+const verifySchema = Joi.object({
+  email: Joi.string().required().messages({
+    "any.required": "missing required field email",
+  })
+})
+
 // password: {
 //   type: String,
 //   required: [true, "Set password for user"],
@@ -60,5 +66,6 @@ module.exports = {
     updateContactSchema,
     favoriteContactSchema,
     userSignupSchema,
-    userSigninSchema
+    userSigninSchema,
+    verifySchema
 }
